@@ -276,10 +276,10 @@ contract PossumFinanceTest is Test {
         vm.expectEmit(true, false, false, true);
         emit SignalVault.SyncFailed(POOL);
 
+        signalVault.stake(1e23);
+
         // Return back to the original branch with correct LP address
         vm.clearMockedCalls();
-
-        signalVault.stake(1e23);
 
         vm.stopPrank();
 
@@ -681,7 +681,6 @@ contract PossumFinanceTest is Test {
 
             // unstake and send rewards back to Vault so that we don't run out of funds
             (staked, winStreak) = fakeOracleVault.stakes(Alice);
-            console.log(winStreak);
 
             if (staked > EPOCH_REWARD) {
                 fakeOracleVault.unstake(EPOCH_REWARD);

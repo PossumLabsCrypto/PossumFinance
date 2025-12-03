@@ -276,6 +276,9 @@ contract PossumFinanceTest is Test {
         vm.expectEmit(true, false, false, true);
         emit SignalVault.SyncFailed(POOL);
 
+        // Return back to the original branch with correct LP address
+        vm.clearMockedCalls();
+
         signalVault.stake(1e23);
 
         vm.stopPrank();

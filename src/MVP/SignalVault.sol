@@ -28,7 +28,9 @@ contract SignalVault {
         uint256 _epochDuration,
         uint256 _firstSettlementTime
     ) {
-        if (_upToken == address(0) || _downToken == address(0)) revert InvalidConstructor();
+        if (_upToken == address(0) || _downToken == address(0)) {
+            revert InvalidConstructor();
+        }
         UP_TOKEN = IERC20(_upToken);
         DOWN_TOKEN = IERC20(_downToken);
 
@@ -294,10 +296,9 @@ contract SignalVault {
         ///@dev Prevent multiple claims
         if (lastClaimTimes[_user] < nextSettlement - EPOCH_DURATION) {
             ///@dev Check that the user has participated and was among the winners in the last epoch
-            bool hasWon = (
-                userPrediction.forSettlementTime == nextSettlement - EPOCH_DURATION
-                    && userPrediction.up1_down2 == last_result
-            );
+            bool hasWon =
+                (userPrediction.forSettlementTime == nextSettlement - EPOCH_DURATION
+                    && userPrediction.up1_down2 == last_result);
 
             ///@dev Calculate rewards if user participated in the last epoch & was among the winners
             if (hasWon) {
@@ -321,7 +322,7 @@ contract SignalVault {
         _checkSequencerStatus();
 
         ///@dev Get the settlement price and timestamps from the oracle
-        (uint80 roundId, int256 price, /*uint256 startedAt*/, uint256 updatedAt, uint80 answeredInRound) =
+        (uint80 roundId, int256 price,/*uint256 startedAt*/, uint256 updatedAt, uint80 answeredInRound) =
             ORACLE.latestRoundData();
 
         ///@dev Perform validation checks on the oracle feed
@@ -425,10 +426,9 @@ contract SignalVault {
         }
 
         ///@dev Check that the user has participated and was among the winners in the last epoch
-        bool hasWon = (
-            userPrediction.forSettlementTime == nextSettlement - EPOCH_DURATION
-                && userPrediction.up1_down2 == last_result
-        );
+        bool hasWon =
+            (userPrediction.forSettlementTime == nextSettlement - EPOCH_DURATION
+                && userPrediction.up1_down2 == last_result);
 
         ///@dev Reset the winstreak counter if not participated or lost in the last epoch
         if (!hasWon) {
@@ -576,10 +576,7 @@ contract SignalVault {
     }
 
     ///@notice Validates the data provided by Chainlink
-    function _validatePriceData(uint80 roundId, int256 price, uint256 updatedAt, uint80 answeredInRound)
-        internal
-        view
-    {
+    function _validatePriceData(uint80 roundId, int256 price, uint256 updatedAt, uint80 answeredInRound) internal view {
         // Check for stale data & round completion (round incomplete when updatedAt == 0)
         // Incomplete rounds will always revert because block.timestamp > (0 + ORACLE_THRESHOLD_TIME)
         uint256 timeDiff = (block.timestamp < updatedAt) ? 0 : block.timestamp - updatedAt;

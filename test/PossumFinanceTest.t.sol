@@ -3,14 +3,14 @@ pragma solidity 0.8.24;
 
 import {Test, console} from "forge-std/Test.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {IChainlink} from "src/interfaces/IChainlink.sol";
-import {SignalVault} from "src/SignalVault.sol";
-import {AssetVault} from "src/AssetVault.sol";
+import {IChainlink} from "src/MVP/interfaces/IChainlink.sol";
+import {IUniswapV2Pair} from "src/MVP/interfaces/IUniswapV2Pair.sol";
+import {SignalVault} from "src/MVP/SignalVault.sol";
+import {AssetVault} from "src/MVP/AssetVault.sol";
 import {SequencerOutage} from "test/mocks/SequencerOutage.sol";
 import {BrokenOracle} from "test/mocks/BrokenOracle.sol";
 import {FakeOracle} from "test/mocks/FakeOracle.sol";
 import {DelayedOracle} from "test/mocks/DelayedOracle.sol";
-import {IUniswapV2Pair} from "src/interfaces/IUniswapV2Pair.sol";
 
 // ============================================
 error InvalidConstructor();

@@ -2,8 +2,8 @@
 pragma solidity 0.8.24;
 
 import {Script, console} from "lib/forge-std/src/Script.sol";
-import {SignalVault} from "src/SignalVault.sol";
-import {AssetVault} from "src/AssetVault.sol";
+import {SignalVault} from "src/MVP/SignalVault.sol";
+import {AssetVault} from "src/MVP/AssetVault.sol";
 
 contract DeployVaults is Script {
     function setUp() public {}

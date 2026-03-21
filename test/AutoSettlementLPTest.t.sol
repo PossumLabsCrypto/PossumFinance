@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "forge-std/Test.sol";
-import {AutoSettlementLP} from "src/MVP/AutoSettlementLP.sol";
+import {AutoSettlementLP} from "src/V1/AutoSettlementLP.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 // ============================================
@@ -18,11 +18,11 @@ error ZeroBalance();
 
 contract AutoSettlementLPTest is Test {
     IERC20 PSM = IERC20(0x17A8541B82BF67e10B0874284b4Ae66858cb1fd5); // PSM
-    address SIGNAL_VAULT = 0xb800B8dbCF9A78b16F5C1135Cd1A39384ABf1fbc;
+    address MARKET = 0xb800B8dbCF9A78b16F5C1135Cd1A39384ABf1fbc;
     address usdt = 0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9;
 
     uint256 constant SWAP_FEE_PRECISION = 10000;
-    uint256 constant SWAP_FEE = 5; // 0.05%
+    uint256 constant SWAP_FEE = 1; // 0.01%
 
     AutoSettlementLP lp;
 
@@ -100,9 +100,9 @@ contract AutoSettlementLPTest is Test {
     function testSuccess_setActiveMarket() public {
         // add new market
         vm.prank(owner);
-        lp.setActiveMarket(SIGNAL_VAULT, 0);
+        lp.setActiveMarket(MARKET, 0);
 
-        assertEq(lp.markets(0), SIGNAL_VAULT);
+        assertEq(lp.markets(0), MARKET);
         assertEq(lp.markets(1), address(0));
         assertEq(lp.lastMarketID(), 0);
 
@@ -116,10 +116,10 @@ contract AutoSettlementLPTest is Test {
 
         // add second market
         vm.prank(owner);
-        lp.setActiveMarket(SIGNAL_VAULT, 1);
+        lp.setActiveMarket(MARKET, 1);
 
         assertEq(lp.markets(0), Alice);
-        assertEq(lp.markets(1), SIGNAL_VAULT);
+        assertEq(lp.markets(1), MARKET);
         assertEq(lp.lastMarketID(), 1);
     }
 
@@ -128,7 +128,7 @@ contract AutoSettlementLPTest is Test {
         // Scenario 1: Unauthorized caller
         vm.prank(Bob);
         vm.expectRevert(NotOwner.selector);
-        lp.setActiveMarket(SIGNAL_VAULT, 0);
+        lp.setActiveMarket(MARKET, 0);
     }
 
     // sweep LP balances and reset
@@ -221,7 +221,7 @@ contract AutoSettlementLPTest is Test {
         if (!success) revert FailedToSendNativeToken();
 
         // Set active market
-        lp.setActiveMarket(SIGNAL_VAULT, 0);
+        lp.setActiveMarket(MARKET, 0);
         vm.stopPrank();
 
         // Params
@@ -261,7 +261,7 @@ contract AutoSettlementLPTest is Test {
         if (!success) revert FailedToSendNativeToken();
 
         // Set active market
-        lp.setActiveMarket(SIGNAL_VAULT, 0);
+        lp.setActiveMarket(MARKET, 0);
         vm.stopPrank();
 
         // Scenario 1: Alice sells smallest possible PSM amount to get positive output - fee is considered
@@ -339,7 +339,7 @@ contract AutoSettlementLPTest is Test {
 
         // Set active market
         vm.prank(owner);
-        lp.setActiveMarket(SIGNAL_VAULT, 0);
+        lp.setActiveMarket(MARKET, 0);
 
         // Scenario 2: try swap if pool is not balanced
         vm.prank(Alice);

@@ -4,7 +4,7 @@ pragma solidity 0.8.24;
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IChainlink} from "./interfaces/IChainlink.sol";
-import {ISignalVault} from "./interfaces/ISignalVault.sol";
+import {IMarket} from "./interfaces/IMarket.sol";
 
 // ============================================
 error DeadlineExpired();
@@ -30,7 +30,7 @@ contract AutoSettlementLP {
 
     IERC20 private constant PSM = IERC20(0x17A8541B82BF67e10B0874284b4Ae66858cb1fd5);
     uint256 private constant SWAP_FEE_PRECISION = 10000;
-    uint256 private constant SWAP_FEE = 5; // 0.05%
+    uint256 private constant SWAP_FEE = 1; // 0.01%
 
     address public owner;
     uint256 public totalEthVolume;
@@ -115,7 +115,11 @@ contract AutoSettlementLP {
     ///@param _tokenIn Input token, either address(0) or PSM address
     ///@param _amountIn Number of input tokens sold to the contract
     ///@return amountOut Number of output tokens received. Output token is the opposite of input token (ETH or PSM)
-    function quoteSwap(address _tokenIn, uint256 _amountIn, bool internalCall) public view returns (uint256 amountOut) {
+    function quoteSwap(address _tokenIn, uint256 _amountIn, bool _internalCall)
+        public
+        view
+        returns (uint256 amountOut)
+    {
         /// @dev Get the PSM token reserve
         uint256 reserve0 = PSM.balanceOf(address(this));
 
@@ -124,7 +128,7 @@ contract AutoSettlementLP {
 
         ///@dev Calculate pre-call ETH balance when input is ETH and called from this contract
         ///@dev Avoid double counting ETH from msg.value when this function is called from an active swap
-        if (internalCall && _tokenIn == address(0)) {
+        if (_internalCall && _tokenIn == address(0)) {
             uint256 preCallEthBalance = reserve1 - _amountIn;
             reserve1 = preCallEthBalance;
         }
@@ -158,9 +162,8 @@ contract AutoSettlementLP {
             revert DeadlineExpired();
         }
 
-        uint256 amountOut = quoteSwap(_tokenIn, amountIn, true);
-
         /// @dev Verify minimum received & abort any wrong inputs that result in 0 received, e.g. wrong token
+        uint256 amountOut = quoteSwap(_tokenIn, amountIn, true);
         if (amountOut < _minReceived) revert InsufficientReceived();
 
         // EFFECTS
@@ -168,13 +171,13 @@ contract AutoSettlementLP {
 
         // INTERACTIONS
         ///@dev Check and trigger settlement of all registered markets
-        ISignalVault vault;
+        IMarket market;
         for (uint256 i; i <= lastMarketID; i++) {
-            vault = ISignalVault(markets[i]);
+            market = IMarket(markets[i]);
 
             ///@dev Only trigger if market expects settlement
-            if (vault.nextSettlement() <= block.timestamp) {
-                vault.settleEpoch();
+            if (market.nextSettlement() <= block.timestamp) {
+                market.settleEpoch();
             }
         }
 

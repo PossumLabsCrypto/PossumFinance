@@ -32,7 +32,7 @@ error InvalidSwapDirection();
 error InsufficientReceived();
 // ============================================
 
-contract PossumFinanceTest is Test {
+contract MVPTest is Test {
     // addresses
     address payable Alice = payable(address(0x117));
     address payable Bob = payable(address(0x118));

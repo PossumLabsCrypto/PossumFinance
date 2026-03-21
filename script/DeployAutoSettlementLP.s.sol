@@ -2,7 +2,7 @@
 pragma solidity 0.8.24;
 
 import {Script, console} from "lib/forge-std/src/Script.sol";
-import {AutoSettlementLP} from "src/MVP/AutoSettlementLP.sol";
+import {AutoSettlementLP} from "src/V1/AutoSettlementLP.sol";
 
 contract DeployAutoSettlementLP is Script {
     function setUp() public {}
